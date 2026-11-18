@@ -1,0 +1,15 @@
+{
+  "name": "lab1-nodejs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Лабораторна робота № 1. Асинхронна обробка даних у TypeScript",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/main.js"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "typescript": "5.9.3"
+  }
+}
