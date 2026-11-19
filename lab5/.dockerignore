@@ -1,0 +1,17 @@
+.git
+.gitignore
+.env
+.env.*
+node_modules
+dist
+coverage
+.mongo-test-*
+tests
+jest.config.js
+tsconfig.test.json
+*.log
+*.docx
+screenshots
+Dockerfile
+.dockerignore
+compose.yaml

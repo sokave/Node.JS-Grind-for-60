@@ -1,0 +1,57 @@
+services:
+  mongo:
+    image: mongo:8
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_USER:-komora}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASSWORD:-komora-lab-only}"
+      MONGO_INITDB_DATABASE: recipesdb
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - pantry
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          mongosh --quiet --host mongo
+          --username "$$MONGO_INITDB_ROOT_USERNAME"
+          --password "$$MONGO_INITDB_ROOT_PASSWORD"
+          --authenticationDatabase admin
+          --eval 'quit(db.adminCommand({ ping: 1 }).ok === 1 ? 0 : 1)'
+      interval: 5s
+      timeout: 4s
+      retries: 12
+      start_period: 10s
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      MONGODB_URI: "mongodb://${MONGO_USER:-komora}:${MONGO_PASSWORD:-komora-lab-only}@mongo:27017/recipesdb?authSource=admin"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - pantry
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - >-
+          fetch('http://127.0.0.1:3000/health')
+          .then(response => { process.exitCode = response.ok ? 0 : 1 })
+          .catch(() => { process.exitCode = 1 })
+      interval: 10s
+      timeout: 4s
+      retries: 4
+      start_period: 5s
+
+volumes:
+  mongo-data:
+
+networks:
+  pantry:
